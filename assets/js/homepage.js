@@ -11,33 +11,39 @@ var formSubmitHandler = function(event) {
 
   if (username) {
     getUserRepos(username);
+
+    // clear old content
+    repoContainerEl.textContent = "";
     nameInputEl.value = "";
   } else {
     alert("Please enter a GitHub username");
   }
 };
 
-
 var getUserRepos = function() {
+
  // format the github api url
- var apiUrl = "https://api.github.com/users/lupend86/repos";
+ var apiUrl = "https://api.github.com/users/" + username + "/repos";
 
  // make a request to the url
- fetch(apiUrl).then(function(response) {
-   // request was succesful
-   if (response.ok) {
-     response.json().then(function(data) {
-       displayRepos(data, username);
-       console.log(data);
-     });
-   } else {
-     alert("Error: GitHub User Not Found");
-   }
-})
-.catch(function(error) {
-  // Notice this `.catch()` getting changed onto the end of the `.then()` method
-  alert("Unable to connect to GitHub");
-});
+ fetch(apiUrl)
+   .then(function(response) {
+     // request was succesful
+     if (response.ok) {
+       console.log(response);
+       response.json().then(function(data) {
+         console.log(data);
+         displayRepos(data, username);
+       });
+     } else {
+       alert("Error: GitHub User Not Found");
+     }
+   })
+   .catch(function(error) {
+    // Notice this `.catch()` getting changed onto the end of the `.then()` method
+    alert("Unable to connect to GitHub");
+  });
+};
 
 var displayRepos = function(repos, searchTerm) {
   // check if api returned any repos
@@ -46,7 +52,7 @@ var displayRepos = function(repos, searchTerm) {
     return;
   }
 
-  repoContainerEl.textContent = "";
+  // repoContainerEl.textContent = "";
   repoSearchTerm.textContent = searchTerm;
 
   for (var i = 0; i < repos.length; i++) {
@@ -54,8 +60,9 @@ var displayRepos = function(repos, searchTerm) {
     var repoName = repos[i].owner.login + "/" + repos[i].name;
     
     // create container for each repo
-    var repoEl = document.createElement("div");
-    repoEl.classList = "list-tem flex-row justify-space-between align-center"
+    var repoEl = document.createElement("a");
+    repoEl.classList = "list-item flex-row justify-space-between align-center";
+    repoEl.setAttribute("href", "/single-repo.html?repo=" + repoName);
 
     // create a span element to hold repository name
     var titleEl = document.createElement("span");
@@ -67,7 +74,7 @@ var displayRepos = function(repos, searchTerm) {
     // create status element
     var statusEl = document.createElement("span");
     statusEl.innerHTML = "flex-row align-center";
-  }
+  
 
     //check if current repo has issues or not
     if (repos[i].open_issues_count > 0) {
